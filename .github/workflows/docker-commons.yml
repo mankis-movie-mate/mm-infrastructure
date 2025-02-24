@@ -11,12 +11,14 @@ on:
 jobs:
   set-config:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
     outputs:
       dockerUser: ${{ steps.get.outputs.dockerUser }}
       dockerPassword: ${{ steps.get.outputs.dockerPassword }}
     steps:
       - id: get
         run: |
-          echo "Using Docker Hub user: ${{ secrets.DOCKERHUB_USER }}"
+          echo "Using Docker Hub user: $DOCKERHUB_USER"
           echo "dockerUser=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_OUTPUT
           echo "dockerPassword=${{ secrets.DOCKERHUB_PASSWORD }}" >> $GITHUB_OUTPUT
