@@ -1,0 +1,31 @@
+#name: Deploy trigger
+#
+#on:
+#  repository_dispatch:
+#    types: [ user-service-builded, recommendation-service-builded ]
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Aggregation Repository
+#        uses: actions/checkout@v2
+#
+#      - name: Set Up SSH
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+#          chmod 600 ~/.ssh/id_rsa
+#          ssh-keyscan -p ${{ secrets.MANKI_SERVER_PORT }} ${{ secrets.MANKI_SERVER }} >> ~/.ssh/known_hosts
+#
+#      - name: SSH and Deploy
+#        run: |
+#          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << 'EOF'
+#            cd ~/Documents/movie-mate-system
+#            git reset --hard
+#            git checkout test
+#            git pull
+#            chmod +x ./overlay/deploy.sh
+#            bash ./overlay/deploy.sh
+#          EOF
+      
