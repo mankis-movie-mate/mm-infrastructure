@@ -4,9 +4,9 @@ on:
   workflow_call:
     secrets:
       DOCKERHUB_USER:
-        required: true
+        required: false
       DOCKERHUB_PASSWORD:
-        required: true
+        required: false
 
 jobs:
   set-config:
