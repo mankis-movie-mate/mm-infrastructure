@@ -2,9 +2,6 @@ name: Common Docker Hub config
 
 on:
   workflow_call:
-    outputs:
-      dockerUser: { description: 'Docker Hub username', type: string }
-      dockerPassword: { description: 'Docker Hub password', type: string }
     secrets:
       DOCKERHUB_USER:
         required: true
@@ -15,9 +12,10 @@ jobs:
   set-config:
     runs-on: ubuntu-latest
     outputs:
-      dockerUser: ${{ secrets.DOCKERHUB_USER }}
-      dockerPassword: ${{ secrets.DOCKERHUB_PASSWORD }}
+      dockerUser: ${{ steps.get.outputs.dockerUser }}
+      dockerPassword: ${{ steps.get.outputs.dockerPassword }}
     steps:
-      - name: Output Docker Config
+      - id: get
         run: |
-          echo "Using Docker Hub user: ${{ secrets.DOCKERHUB_USER }}"
+          echo "dockerUser=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_OUTPUT
+          echo "dockerPassword=${{ secrets.DOCKERHUB_PASSWORD }}" >> $GITHUB_OUTPUT
