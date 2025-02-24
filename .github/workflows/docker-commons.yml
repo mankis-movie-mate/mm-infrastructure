@@ -17,6 +17,7 @@ jobs:
     steps:
       - id: get
         run: |
-          echo "Using Docker Hub user: ${{ secrets.DOCKERHUB_USER }}"
+          echo "Direct secret DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}"
+          echo "Env DOCKERHUB_USER: $DOCKERHUB_USER"
           echo "dockerUser=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_OUTPUT
           echo "dockerPassword=${{ secrets.DOCKERHUB_PASSWORD }}" >> $GITHUB_OUTPUT
