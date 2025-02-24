@@ -1,4 +1,4 @@
-name: Common Docker config
+name: Common Docker Hub config
 
 on:
   workflow_call:
@@ -6,8 +6,6 @@ on:
       dockerUser: { description: 'Docker Hub username', type: string }
       dockerPassword: { description: 'Docker Hub password', type: string }
     secrets:
-      personal_access_token:
-        required: false
       DOCKERHUB_USER:
         required: true
       DOCKERHUB_PASSWORD:
