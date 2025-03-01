@@ -27,7 +27,7 @@ jobs:
           PROJECT_PATH="${{ vars.PROJECT_PATH }}"
           
           echo "Deploying service: $SERVICE with tag: $IMAGE_TAG"
-          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << 'EOF' 
+          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << EOF 
             echo "📂 Changing to project directory: $PROJECT_PATH"
             cd "$PROJECT_PATH"
             git reset --hard
