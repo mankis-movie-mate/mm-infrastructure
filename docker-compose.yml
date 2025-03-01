@@ -8,7 +8,7 @@ services:
   # PostgreSQL
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: mm-postgres
     environment:
       POSTGRES_USER: "${MOVIE_MATE_POSTGRES_USER}"
       POSTGRES_PASSWORD: "${MOVIE_MATE_POSTGRES_PASSWORD}"
@@ -23,7 +23,7 @@ services:
   # MongoDB
   mongo:
     image: mongo:6
-    container_name: mongo
+    container_name: mm-mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MOVIE_MATE_MONGO_INITDB_ROOT_USERNAME}"
       MONGO_INITDB_ROOT_PASSWORD: "${MOVIE_MATE_MONGO_INITDB_ROOT_PASSWORD}"
@@ -37,7 +37,7 @@ services:
   # Redis
   redis:
     image: redis:latest
-    container_name: redis
+    container_name: mm-redis
     command: [ "redis-server", "--requirepass", "${MOVIE_MATE_REDIS_PASSWORD}" ]
     environment:
       REDIS_PASSWORD: "${MOVIE_MATE_REDIS_PASSWORD}"
@@ -49,7 +49,7 @@ services:
   # Neo4j
   neo4j:
     image: neo4j:5
-    container_name: neo4j
+    container_name: mm-neo4j
     environment:
       NEO4J_AUTH: "${MOVIE_MATE_NEO4J_AUTH}"
     ports:
@@ -64,7 +64,7 @@ services:
   # Zookeeper
   zookeeper:
     image: bitnami/zookeeper:latest
-    container_name: zookeeper
+    container_name: mm-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
     ports:
@@ -75,7 +75,7 @@ services:
   # Kafka
   kafka:
     image: bitnami/kafka:latest
-    container_name: kafka
+    container_name: mm-kafka
     depends_on:
       - zookeeper
     environment:
@@ -142,8 +142,8 @@ services:
   recommendation-service:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
     container_name: mm-recommendation-service
-    depends_on:
-      - api-gateway
+#    depends_on:
+#      - api-gateway
     environment:
       SERVER_PORT: "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
     ports:

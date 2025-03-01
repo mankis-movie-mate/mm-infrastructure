@@ -46,9 +46,10 @@ for SERVICE in "${!REPOS[@]}"; do
   fi
 
   cd ..
-  cp .env.example .env
-  cp .env.db.example .env.db
   echo "Finished processing $SERVICE."
 done
 
+cd mm-infrastructure
+cp .env.example .env
+cp .env.db.example .env.db
 echo "Cluster initialization complete."
