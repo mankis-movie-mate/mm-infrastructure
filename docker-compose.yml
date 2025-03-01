@@ -7,7 +7,7 @@ services:
 
   # PostgreSQL
   postgres:
-    image: postgres:15
+    image: postgres:latest
     container_name: mm-postgres
     environment:
       POSTGRES_USER: "${MOVIE_MATE_POSTGRES_USER}"
@@ -22,7 +22,7 @@ services:
 
   # MongoDB
   mongo:
-    image: mongo:6
+    image: mongo:latest
     container_name: mm-mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MOVIE_MATE_MONGO_INITDB_ROOT_USERNAME}"
@@ -48,7 +48,7 @@ services:
 
   # Neo4j
   neo4j:
-    image: neo4j:5
+    image: neo4j:latest
     container_name: mm-neo4j
     environment:
       NEO4J_AUTH: "${MOVIE_MATE_NEO4J_AUTH}"
@@ -67,6 +67,9 @@ services:
     container_name: mm-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+      ZOOKEEPER_ENABLE_AUTH: yes
+      ZOOKEEPER_SERVER_USERS: "${MOVIE_MATE_ZOOKEEPER_USER}"
+      ZOOKEEPER_SERVER_PASSWORDS: "${MOVIE_MATE_ZOOKEEPER_PASSWORD}"
     ports:
       - "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
     networks:
@@ -84,6 +87,7 @@ services:
       KAFKA_LISTENERS: "INTERNAL://:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://localhost:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+
     ports:
       - "${MOVIE_MATE_KAFKA_EXTERNAL_PORT}:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
     networks:
