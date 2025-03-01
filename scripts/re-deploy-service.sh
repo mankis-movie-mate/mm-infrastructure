@@ -26,6 +26,8 @@ if ! docker pull "$DOCKER_IMAGE"; then
 fi
 
 echo "🔄 Restarting service $SERVICE using Docker Compose..."
+
+cd ..
 if ! docker compose up -d --no-deps --build "$SERVICE"; then
     echo "❌ Error: Failed to redeploy service '$SERVICE'" >&2
     exit 1
