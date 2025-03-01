@@ -27,9 +27,8 @@ jobs:
           PROJECT_PATH="${{ vars.PROJECT_PATH }}"
           
           echo "Deploying service: $SERVICE with tag: $IMAGE_TAG"
-          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }}
-          "cd $PROJECT_PATH 
-          git reset --hard
-          git pull
-          chmod +x ./scripts/re-deploy-service.sh
-          bash ./scripts/re-deploy-service.sh $DOCKER_REGISTRY $SERVICE $IMAGE_TAG"
+          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} \
+            "cd '$PROJECT_PATH' && \
+            git reset --hard && git pull && \
+            chmod +x ./scripts/re-deploy-service.sh && \
+            bash ./scripts/re-deploy-service.sh '$DOCKER_REGISTRY' '$SERVICE' '$IMAGE_TAG'"
