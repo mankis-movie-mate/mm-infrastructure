@@ -16,14 +16,20 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ secrets.MANKI_SERVER_PORT }} ${{ secrets.MANKI_SERVER }} >> ~/.ssh/known_hosts
+      
 
       - name: Deploy Service via SSH
         run: |
           SERVICE="${{ github.event.client_payload.service }}"
           IMAGE_TAG="${{ github.event.client_payload.tag }}"
+          DOCKER_REGISTRY="${{ secrets.DOCKERHUB_USER }}"
           echo "Deploying service: $SERVICE with tag: $IMAGE_TAG"
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << 'EOF'
           # Call a generic deploy script that handles multiple services
-          /path/to/deploy.sh "$SERVICE" "$IMAGE_TAG"
+          cd ~/Documents/movie-mate/mm-infrastructure
+          git reset --hard
+          git pull
+          chmod +x ./overlay/deploy.sh
+          bash ./scripts/re-deploy-service.sh "$DOCKER_REGISTRY" "$SERVICE" "$IMAGE_TAG"
           EOF
