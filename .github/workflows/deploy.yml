@@ -24,12 +24,15 @@ jobs:
           SERVICE="${{ github.event.client_payload.service }}"
           IMAGE_TAG="${{ github.event.client_payload.tag }}"
           DOCKER_REGISTRY="${{ secrets.DOCKERHUB_USER }}"
+          PROJECT_PATH="${{ vars.PROJECT_PATH }}"
+          
           echo "Deploying service: $SERVICE with tag: $IMAGE_TAG"
-          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << 'EOF'
-          # Call a generic deploy script that handles multiple services
-          cd ~/Documents/movie-mate/mm-infrastructure
-          git reset --hard
-          git pull
-          chmod +x ./overlay/deploy.sh
-          bash ./scripts/re-deploy-service.sh "$DOCKER_REGISTRY" "$SERVICE" "$IMAGE_TAG"
+          
+          ssh -o StrictHostKeyChecking=no -J ${{ secrets.MANKI_SERVER_USER }}@${{ secrets.MANKI_SERVER }}:${{ secrets.MANKI_SERVER_PORT }} -p ${{ secrets.MANKI_HOME_SERVER_PORT }} ${{ secrets.MANKI_HOME_SERVER_USER }}@${{ secrets.MANKI_HOME_SERVER }} << EOF
+            echo "📂 Changing to project directory: $PROJECT_PATH"
+            cd "$PROJECT_PATH"
+            git reset --hard
+            git pull
+            chmod +x ./scripts/re-deploy-service.sh
+            bash ./scripts/re-deploy-service.sh "$DOCKER_REGISTRY" "$SERVICE" "$IMAGE_TAG"
           EOF
