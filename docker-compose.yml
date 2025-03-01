@@ -1,0 +1,181 @@
+version: "3.8"
+
+services:
+  ##############################################################################
+  # Databases / Message Queues
+  ##############################################################################
+
+  # PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: mm-postgres
+    environment:
+      POSTGRES_USER: "${MOVIE_MATE_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${MOVIE_MATE_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${MOVIE_MATE_POSTGRES_DB}"
+    ports:
+      - "${MOVIE_MATE_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - movie-mate-network
+
+  # MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: mm-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MOVIE_MATE_MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MOVIE_MATE_MONGO_INITDB_ROOT_PASSWORD}"
+    ports:
+      - "${MOVIE_MATE_MONGO_PORT}:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - movie-mate-network
+
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: mm-redis
+    command: [ "redis-server", "--requirepass", "${MOVIE_MATE_REDIS_PASSWORD}" ]
+    environment:
+      REDIS_PASSWORD: "${MOVIE_MATE_REDIS_PASSWORD}"
+    ports:
+      - "${MOVIE_MATE_REDIS_PORT}:6379"
+    networks:
+      - movie-mate-network
+
+  # Neo4j
+  neo4j:
+    image: neo4j:latest
+    container_name: mm-neo4j
+    environment:
+      NEO4J_AUTH: "${MOVIE_MATE_NEO4J_AUTH}"
+    ports:
+      - "${MOVIE_MATE_NEO4J_HTTP_PORT}:7474"
+      - "${MOVIE_MATE_NEO4J_BOLT_PORT}:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - movie-mate-network
+
+  # Zookeeper
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: mm-zookeeper
+    environment:
+      ZOO_PORT_NUMBER: "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    ports:
+      - "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+    networks:
+      - movie-mate-network
+
+  # Kafka
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: mm-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: "${MOVIE_MATE_KAFKA_BROKER_ID}"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+      KAFKA_LISTENERS: "INTERNAL://:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://localhost:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+
+    ports:
+      - "${MOVIE_MATE_KAFKA_EXTERNAL_PORT}:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+    networks:
+      - movie-mate-network
+
+  ##############################################################################
+  # Microservices
+  ##############################################################################
+
+#  discovery-server:
+#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}"
+#    container_name: mm-discovery-server
+#    environment:
+#      SERVER_PORT: "${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
+#    ports:
+#      - "${MOVIE_MATE_DISCOVERY_SERVER_PORT}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
+#    networks:
+#      - movie-mate-network
+
+#  api-gateway:
+#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
+#    container_name: mm-api-gateway
+#    depends_on:
+#      - discovery-server
+#    environment:
+#      SERVER_PORT: "${MOVIE_MATE_API_GATEWAY_PORT}"
+#    ports:
+#      - "${MOVIE_MATE_API_GATEWAY_PORT}:${MOVIE_MATE_API_GATEWAY_PORT}"
+#    networks:
+#      - movie-mate-network
+
+#  movie-service:
+#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
+#    container_name: mm-movie-service
+#    depends_on:
+#      - api-gateway
+#    environment:
+#      SERVER_PORT: "${MOVIE_MATE_MOVIE_SERVICE_PORT}"
+#    ports:
+#      - "${MOVIE_MATE_MOVIE_SERVICE_PORT}:${MOVIE_MATE_MOVIE_SERVICE_PORT}"
+#    networks:
+#      - movie-mate-network
+
+#  activity-service:
+#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-activity-service:${MOVIE_MATE_VERSION}"
+#    container_name: mm-activity-service
+#    depends_on:
+#      - api-gateway
+#    environment:
+#      SERVER_PORT: "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
+#    ports:
+#      - "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}:${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
+#    networks:
+#      - movie-mate-network
+
+  recommendation-service:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
+    container_name: mm-recommendation-service
+#    depends_on:
+#      - api-gateway
+    environment:
+      MOVIE_MATE_RECOMMENDATION_SERVICE_PORT: "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
+    ports:
+      - "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}:${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
+    networks:
+      - movie-mate-network
+
+#  user-service:
+#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
+#    container_name: mm-user-service
+#    depends_on:
+#      - api-gateway
+#    environment:
+#      SERVER_PORT: "${MOVIE_MATE_USER_SERVICE_PORT}"
+#    ports:
+#      - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
+#    networks:
+#      - movie-mate-network
+
+##############################################################################
+# Networks & Volumes
+##############################################################################
+
+networks:
+  movie-mate-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  neo4j_data:
+  neo4j_logs:
