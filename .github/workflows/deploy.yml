@@ -33,6 +33,7 @@ jobs:
             cd "$PROJECT_PATH"
             git reset --hard
             git pull
+            git checkout dev/deploy-scripts
             chmod +x ./scripts/re-deploy-service.sh
             bash ./scripts/re-deploy-service.sh "$DOCKER_REGISTRY" "$SERVICE" "$IMAGE_TAG"
           EOF
