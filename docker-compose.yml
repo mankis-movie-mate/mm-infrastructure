@@ -96,7 +96,7 @@ services:
   # Microservices
   ##############################################################################
 
-#  discovery-server:
+#  mm-discovery-server:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}"
 #    container_name: mm-discovery-server
 #    environment:
@@ -106,11 +106,11 @@ services:
 #    networks:
 #      - movie-mate-network
 
-#  api-gateway:
+#  mm-api-gateway:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
 #    container_name: mm-api-gateway
 #    depends_on:
-#      - discovery-server
+#      - mm-discovery-server
 #    environment:
 #      SERVER_PORT: "${MOVIE_MATE_API_GATEWAY_PORT}"
 #    ports:
@@ -118,11 +118,11 @@ services:
 #    networks:
 #      - movie-mate-network
 
-#  movie-service:
+#  mm-movie-service:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
 #    container_name: mm-movie-service
 #    depends_on:
-#      - api-gateway
+#      - mm-api-gateway
 #    environment:
 #      SERVER_PORT: "${MOVIE_MATE_MOVIE_SERVICE_PORT}"
 #    ports:
@@ -130,11 +130,11 @@ services:
 #    networks:
 #      - movie-mate-network
 
-#  activity-service:
+#  mm-activity-service:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-activity-service:${MOVIE_MATE_VERSION}"
 #    container_name: mm-activity-service
 #    depends_on:
-#      - api-gateway
+#      - mm-api-gateway
 #    environment:
 #      SERVER_PORT: "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
 #    ports:
@@ -142,11 +142,11 @@ services:
 #    networks:
 #      - movie-mate-network
 
-  recommendation-service:
+  mm-recommendation-service:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
     container_name: mm-recommendation-service
 #    depends_on:
-#      - api-gateway
+#      - mm-api-gateway
     environment:
       MOVIE_MATE_RECOMMENDATION_SERVICE_PORT: "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
     ports:
@@ -154,11 +154,11 @@ services:
     networks:
       - movie-mate-network
 
-#  user-service:
+#  mm-user-service:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
 #    container_name: mm-user-service
 #    depends_on:
-#      - api-gateway
+#      - mm-api-gateway
 #    environment:
 #      SERVER_PORT: "${MOVIE_MATE_USER_SERVICE_PORT}"
 #    ports:
