@@ -113,19 +113,19 @@ services:
     networks:
       - movie-mate-network
 
-#  mm-api-gateway:
-#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
-#    container_name: mm-api-gateway
-#    depends_on:
-#      - mm-discovery-server
-#    env_file:
-      #      - .env.db
-      #      - .env
-      #      - ../mm-api-gateway/.env
-#    ports:
-#      - "${MOVIE_MATE_API_GATEWAY_PORT}:${MOVIE_MATE_API_GATEWAY_PORT}"
-#    networks:
-#      - movie-mate-network
+  mm-api-gateway:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
+    container_name: mm-api-gateway
+    depends_on:
+      - mm-discovery-server
+    env_file:
+        - .env.db
+        - .env
+        - ../mm-api-gateway/.env
+    ports:
+      - "${MOVIE_MATE_API_GATEWAY_PORT}:80"
+    networks:
+      - movie-mate-network
 
 #  mm-movie-service:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
