@@ -2,7 +2,7 @@ name: Deploy Trigger
 
 on:
   repository_dispatch:
-    types: [ user-service-builded, recommendation-service-builded ]
+    types: [ user-service-builded, recommendation-service-builded, activity-service-builded, movie-service-builded, api-gateway-builded, discovery-server-builded ]
 
 jobs:
   deploy:

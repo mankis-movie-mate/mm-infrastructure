@@ -10,11 +10,11 @@ services:
     image: postgres:latest
     container_name: mm-postgres
     environment:
-      POSTGRES_USER: "${MOVIE_MATE_POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${MOVIE_MATE_POSTGRES_PASSWORD}"
-      POSTGRES_DB: "${MOVIE_MATE_POSTGRES_DB}"
+      POSTGRES_USER: "${MOVIE_MATE_POSTGRE_USERNAME}"
+      POSTGRES_PASSWORD: "${MOVIE_MATE_POSTGRE_PASSWORD}"
+      POSTGRES_DB: "${MOVIE_MATE_POSTGRE_DB}"
     ports:
-      - "${MOVIE_MATE_POSTGRES_PORT}:5432"
+      - "${MOVIE_MATE_POSTGRE_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -99,8 +99,10 @@ services:
 #  mm-discovery-server:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}"
 #    container_name: mm-discovery-server
-#    environment:
-#      SERVER_PORT: "${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
+#    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-discovery-server/.env
 #    ports:
 #      - "${MOVIE_MATE_DISCOVERY_SERVER_PORT}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
 #    networks:
@@ -111,8 +113,10 @@ services:
 #    container_name: mm-api-gateway
 #    depends_on:
 #      - mm-discovery-server
-#    environment:
-#      SERVER_PORT: "${MOVIE_MATE_API_GATEWAY_PORT}"
+#    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-api-gateway/.env
 #    ports:
 #      - "${MOVIE_MATE_API_GATEWAY_PORT}:${MOVIE_MATE_API_GATEWAY_PORT}"
 #    networks:
@@ -123,8 +127,10 @@ services:
 #    container_name: mm-movie-service
 #    depends_on:
 #      - mm-api-gateway
-#    environment:
-#      SERVER_PORT: "${MOVIE_MATE_MOVIE_SERVICE_PORT}"
+#    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-movie-service/.env
 #    ports:
 #      - "${MOVIE_MATE_MOVIE_SERVICE_PORT}:${MOVIE_MATE_MOVIE_SERVICE_PORT}"
 #    networks:
@@ -135,8 +141,10 @@ services:
 #    container_name: mm-activity-service
 #    depends_on:
 #      - mm-api-gateway
-#    environment:
-#      SERVER_PORT: "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
+#    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-activity-service/.env
 #    ports:
 #      - "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}:${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
 #    networks:
@@ -147,8 +155,10 @@ services:
     container_name: mm-recommendation-service
 #    depends_on:
 #      - mm-api-gateway
-    environment:
-      MOVIE_MATE_RECOMMENDATION_SERVICE_PORT: "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-recommendation-service/.env
     ports:
       - "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}:${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
     networks:
@@ -159,8 +169,10 @@ services:
     container_name: mm-user-service
 #    depends_on:
 #      - mm-api-gateway
-    environment:
-      SERVER_PORT: "${MOVIE_MATE_USER_SERVICE_PORT}"
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-user-service/.env
     ports:
       - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
     networks:
