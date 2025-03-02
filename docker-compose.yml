@@ -122,10 +122,13 @@ services:
         - .env.db
         - .env
         - ../mm-api-gateway/.env
-    command:
-      - "--providers.consulcatalog.endpoint.address=${MOVIE_MATE_DISCOVERY_SERVER_HOST}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
+    environment:
+      TRAEFIK_PROVIDERS_CONSULCATALOG_ENDPOINT_ADDRESS: "${MOVIE_MATE_DISCOVERY_SERVER_HOST}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
     ports:
       - "${MOVIE_MATE_API_GATEWAY_PORT}:8080"
+    labels:
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}"
     networks:
       - movie-mate-network
 
