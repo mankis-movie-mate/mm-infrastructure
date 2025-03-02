@@ -154,17 +154,17 @@ services:
     networks:
       - movie-mate-network
 
-#  mm-user-service:
-#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
-#    container_name: mm-user-service
+  mm-user-service:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
+    container_name: mm-user-service
 #    depends_on:
 #      - mm-api-gateway
-#    environment:
-#      SERVER_PORT: "${MOVIE_MATE_USER_SERVICE_PORT}"
-#    ports:
-#      - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
-#    networks:
-#      - movie-mate-network
+    environment:
+      SERVER_PORT: "${MOVIE_MATE_USER_SERVICE_PORT}"
+    ports:
+      - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
+    networks:
+      - movie-mate-network
 
 ##############################################################################
 # Networks & Volumes
