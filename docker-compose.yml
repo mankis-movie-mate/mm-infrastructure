@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   ##############################################################################
-  # Databases / Message Queues
+  # Databases
   ##############################################################################
 
   # PostgreSQL
@@ -61,6 +61,10 @@ services:
     networks:
       - movie-mate-network
 
+
+  ##############################################################################
+  # Message Queues
+  ##############################################################################
   # Zookeeper
   zookeeper:
     image: bitnami/zookeeper:latest
@@ -96,17 +100,18 @@ services:
   # Microservices
   ##############################################################################
 
-#  mm-discovery-server:
-#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}"
-#    container_name: mm-discovery-server
-#    env_file:
-      #      - .env.db
-      #      - .env
-      #      - ../mm-discovery-server/.env
-#    ports:
-#      - "${MOVIE_MATE_DISCOVERY_SERVER_PORT}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
-#    networks:
-#      - movie-mate-network
+  mm-discovery-server:
+    image: ${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}
+    container_name: mm-discovery-server
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-discovery-server/.env
+    ports:
+      - "${MOVIE_MATE_DISCOVERY_SERVER_PORT}:8500"
+      - "${MOVIE_MATE_DISCOVERY_SERVER_DNS_PORT}:8600/udp"
+    networks:
+      - movie-mate-network
 
 #  mm-api-gateway:
 #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
