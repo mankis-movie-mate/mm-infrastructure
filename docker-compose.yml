@@ -167,8 +167,9 @@ services:
   mm-user-service:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
     container_name: mm-user-service
-#    depends_on:
+    depends_on:
 #      - mm-api-gateway
+      - postgres
     env_file:
       - .env.db
       - .env
