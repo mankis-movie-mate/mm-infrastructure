@@ -108,7 +108,7 @@ services:
       - .env
       - ../mm-discovery-server/.env
     ports:
-      - "${MOVIE_MATE_DISCOVERY_SERVER_PORT}:8500"
+      - "${MOVIE_MATE_DISCOVERY_SERVER_UI_PORT}:8500"
       - "${MOVIE_MATE_DISCOVERY_SERVER_DNS_PORT}:8600/udp"
     networks:
       - movie-mate-network
