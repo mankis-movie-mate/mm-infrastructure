@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'dapr'
+    static_configs:
+      - targets: ['mm-user-service:9090'] # standard dapr port for metrics inside the container

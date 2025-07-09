@@ -2,11 +2,46 @@ version: "3.8"
 
 services:
   ##############################################################################
+  # Placement services
+  ##############################################################################
+  mm-dapr-placement:
+    image: "daprio/dapr"
+    command: ["./placement"]
+    container_name: mm-dapr-placement
+    ports:
+      - "${MOVIE_MATE_DAPR_PLACEMENT_PORT}:50005"
+    networks:
+      - movie-mate-network
+
+  ##############################################################################
+  # Observability
+  ##############################################################################
+  mm-prometheus:
+    image: prom/prometheus
+    container_name: mm-prometheus
+    ports:
+      - "${MOVIE_MATE_PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - movie-mate-network
+
+  mm-grafana:
+    image: grafana/grafana
+    container_name: mm-grafana
+    ports:
+      - "${MOVIE_MATE_GRAFANA_PORT}:3000"
+    networks:
+      - movie-mate-network
+    depends_on:
+      - mm-prometheus
+
+  ##############################################################################
   # Databases
   ##############################################################################
 
   # PostgreSQL
-  postgres:
+  mm-postgres:
     image: postgres:latest
     container_name: mm-postgres
     environment:
@@ -21,7 +56,7 @@ services:
       - movie-mate-network
 
   # MongoDB
-  mongo:
+  mm-mongo:
     image: mongo:latest
     container_name: mm-mongo
     environment:
@@ -35,7 +70,7 @@ services:
       - movie-mate-network
 
   # Redis
-  redis:
+  mm-redis:
     image: redis:latest
     container_name: mm-redis
     command: [ "redis-server", "--requirepass", "${MOVIE_MATE_REDIS_PASSWORD}" ]
@@ -47,7 +82,7 @@ services:
       - movie-mate-network
 
   # Neo4j
-  neo4j:
+  mm-neo4j:
     image: neo4j:latest
     container_name: mm-neo4j
     environment:
@@ -66,7 +101,7 @@ services:
   # Message Queues
   ##############################################################################
   # Zookeeper
-  zookeeper:
+  mm-zookeeper:
     image: bitnami/zookeeper:latest
     container_name: mm-zookeeper
     environment:
@@ -78,11 +113,11 @@ services:
       - movie-mate-network
 
   # Kafka
-  kafka:
+  mm-kafka:
     image: bitnami/kafka:latest
     container_name: mm-kafka
     depends_on:
-      - zookeeper
+      - mm-zookeeper
     environment:
       KAFKA_BROKER_ID: "${MOVIE_MATE_KAFKA_BROKER_ID}"
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
@@ -179,15 +214,30 @@ services:
     container_name: mm-user-service
     depends_on:
 #      - mm-api-gateway
-      - postgres
+      - mm-postgres
     env_file:
       - .env.db
       - .env
       - ../mm-user-service/.env
     ports:
       - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
+      - "${MOVIE_MATE_USER_SERVICE_DAPR_PORT}:3500"
     networks:
       - movie-mate-network
+
+  mm-dapr-user-service:
+      image: "daprio/daprd"
+      container_name: mm-dapr-user-service
+      depends_on:
+        - mm-user-service
+      command: [
+        "./daprd",
+        "-app-id", "mm-user-service",
+        "-app-port", "${MOVIE_MATE_USER_SERVICE_PORT}",
+        "-placement-host-address", "mm-dapr-placement:${MOVIE_MATE_DAPR_PLACEMENT_PORT}",
+        "-metrics-port", "9090"
+      ]
+      network_mode: "service:mm-user-service"
 
 ##############################################################################
 # Networks & Volumes
