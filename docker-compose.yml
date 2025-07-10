@@ -238,8 +238,8 @@ services:
   mm-recommendation-service:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
     container_name: mm-recommendation-service
-    #    depends_on:
-    #      - mm-api-gateway
+    depends_on:
+      - mm-api-gateway
     env_file:
       - .env.db
       - .env
@@ -253,7 +253,7 @@ services:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
     container_name: mm-user-service
     depends_on:
-      #      - mm-api-gateway
+      - mm-api-gateway
       - mm-postgres
     env_file:
       - .env.db
