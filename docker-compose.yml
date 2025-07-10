@@ -70,6 +70,7 @@ services:
     container_name: mm-promtail
     volumes:
       - ./config/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     environment:
       - LOKI_PUSH_URL=http://mm-loki:${MOVIE_MATE_LOKI_PORT:-3100}/loki/api/v1/push
     command: -config.file=/etc/promtail/promtail-config.yaml -config.expand-env=true
