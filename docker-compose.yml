@@ -16,6 +16,7 @@ services:
   ##############################################################################
   # Observability
   ##############################################################################
+  # Metrics: Prometheus
   mm-prometheus:
     image: prom/prometheus
     container_name: mm-prometheus
@@ -26,15 +27,54 @@ services:
     networks:
       - movie-mate-network
 
+  # Visualization: Grafana
   mm-grafana:
     image: grafana/grafana
     container_name: mm-grafana
     ports:
       - "${MOVIE_MATE_GRAFANA_PORT}:3000"
-    networks:
-      - movie-mate-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=${MOVIE_MATE_GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${MOVIE_MATE_GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
     depends_on:
       - mm-prometheus
+      - mm-loki
+      - mm-zipkin
+    networks:
+      - movie-mate-network
+
+  # Tracing: Zipkin
+  mm-zipkin:
+    image: openzipkin/zipkin
+    container_name: mm-zipkin
+    ports:
+      - "${MOVIE_MATE_ZIPKIN_PORT:-9411}:9411"
+    networks:
+      - movie-mate-network
+
+    # Logging: Loki
+  mm-loki:
+    image: grafana/loki:latest
+    container_name: mm-loki
+    ports:
+      - "${MOVIE_MATE_LOKI_PORT:-3100}:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./config/loki/loki-config.yaml:/etc/loki/loki-config.yaml
+    networks:
+      - movie-mate-network
+
+  mm-promtail:
+    image: grafana/promtail:latest
+    container_name: mm-promtail
+    volumes:
+      - ./config/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+    environment:
+      - LOKI_PUSH_URL=http://mm-loki:${MOVIE_MATE_LOKI_PORT:-3100}/loki/api/v1/push
+    command: -config.file=/etc/promtail/promtail-config.yaml -config.expand-env=true
+    networks:
+      - movie-mate-network
 
   ##############################################################################
   # Databases
@@ -154,9 +194,9 @@ services:
     depends_on:
       - mm-discovery-server
     env_file:
-        - .env.db
-        - .env
-        - ../mm-api-gateway/.env
+      - .env.db
+      - .env
+      - ../mm-api-gateway/.env
     environment:
       TRAEFIK_PROVIDERS_CONSULCATALOG_ENDPOINT_ADDRESS: "${MOVIE_MATE_DISCOVERY_SERVER_HOST}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
     ports:
@@ -167,39 +207,39 @@ services:
     networks:
       - movie-mate-network
 
-#  mm-movie-service:
-#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
-#    container_name: mm-movie-service
-#    depends_on:
-#      - mm-api-gateway
-#    env_file:
+      #  mm-movie-service:
+      #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
+      #    container_name: mm-movie-service
+      #    depends_on:
+      #      - mm-api-gateway
+      #    env_file:
       #      - .env.db
       #      - .env
       #      - ../mm-movie-service/.env
-#    ports:
-#      - "${MOVIE_MATE_MOVIE_SERVICE_PORT}:${MOVIE_MATE_MOVIE_SERVICE_PORT}"
-#    networks:
-#      - movie-mate-network
+      #    ports:
+      #      - "${MOVIE_MATE_MOVIE_SERVICE_PORT}:${MOVIE_MATE_MOVIE_SERVICE_PORT}"
+      #    networks:
+      #      - movie-mate-network
 
-#  mm-activity-service:
-#    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-activity-service:${MOVIE_MATE_VERSION}"
-#    container_name: mm-activity-service
-#    depends_on:
-#      - mm-api-gateway
-#    env_file:
+      #  mm-activity-service:
+      #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-activity-service:${MOVIE_MATE_VERSION}"
+      #    container_name: mm-activity-service
+      #    depends_on:
+      #      - mm-api-gateway
+      #    env_file:
       #      - .env.db
       #      - .env
       #      - ../mm-activity-service/.env
-#    ports:
-#      - "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}:${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
-#    networks:
-#      - movie-mate-network
+  #    ports:
+  #      - "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}:${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
+  #    networks:
+  #      - movie-mate-network
 
   mm-recommendation-service:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
     container_name: mm-recommendation-service
-#    depends_on:
-#      - mm-api-gateway
+    #    depends_on:
+    #      - mm-api-gateway
     env_file:
       - .env.db
       - .env
@@ -213,7 +253,7 @@ services:
     image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
     container_name: mm-user-service
     depends_on:
-#      - mm-api-gateway
+      #      - mm-api-gateway
       - mm-postgres
     env_file:
       - .env.db
@@ -226,18 +266,17 @@ services:
       - movie-mate-network
 
   mm-dapr-user-service:
-      image: "daprio/daprd"
-      container_name: mm-dapr-user-service
-      depends_on:
-        - mm-user-service
-      command: [
-        "./daprd",
-        "-app-id", "mm-user-service",
-        "-app-port", "${MOVIE_MATE_USER_SERVICE_PORT}",
-        "-placement-host-address", "mm-dapr-placement:${MOVIE_MATE_DAPR_PLACEMENT_PORT}",
-        "-metrics-port", "9090"
-      ]
-      network_mode: "service:mm-user-service"
+    image: "daprio/daprd"
+    container_name: mm-dapr-user-service
+    depends_on:
+      - mm-user-service
+    command: [
+      "./daprd",
+      "-app-id", "mm-user-service",
+      "-app-port", "${MOVIE_MATE_USER_SERVICE_PORT}",
+      "-placement-host-address", "mm-dapr-placement:${MOVIE_MATE_DAPR_PLACEMENT_PORT}",
+    ]
+    network_mode: "service:mm-user-service"
 
 ##############################################################################
 # Networks & Volumes
