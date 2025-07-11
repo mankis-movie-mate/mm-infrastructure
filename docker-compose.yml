@@ -269,6 +269,8 @@ services:
     depends_on:
       - mm-api-gateway
       - mm-postgres
+      - mm-redis
+      - mm-otel-collector
     env_file:
       - .env.db
       - .env
