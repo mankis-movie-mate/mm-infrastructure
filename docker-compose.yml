@@ -82,6 +82,8 @@ services:
   mm-otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: mm-otel-collector
+    env_file:
+      - .env
     volumes:
       - ./config/otel/otel-collector-config.yaml:/etc/otel/config.yaml
     command: [ "--config=/etc/otel/config.yaml" ]

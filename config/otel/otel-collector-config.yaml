@@ -8,10 +8,20 @@ receivers:
 
 exporters:
   zipkin:
-    endpoint: "http://mm-zipkin:9411/api/v2/spans" # standard port of zipkin inside docker network
+    endpoint: ${MOVIE_MATE_OTEL_ZIPKIN_ENDPOINT}
+  prometheus:
+    endpoint: ${MOVIE_MATE_OTEL_PROMETHEUS_ENDPOINT}
+
+processors:
+  batch: {}
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       exporters: [zipkin]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+
