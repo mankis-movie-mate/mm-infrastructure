@@ -27,3 +27,6 @@ replay_pid*
 #env
 .env.db
 .env
+
+values.local*
+values.dev*

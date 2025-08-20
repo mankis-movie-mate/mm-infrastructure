@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mm-user-service.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mm-user-service.name" . }}
+    app.kubernetes.io/part-of: movie-mate
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mm-user-service.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "mm-user-service.name" . }}
+        app.kubernetes.io/part-of: movie-mate
+        app.kubernetes.io/component: backend
+        io.kompose.network/movie-mate-network: "true"
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: {{ include "mm-user-service.name" . }}
+        dapr.io/app-port: "{{ .Values.containerPort }}"
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/sidecar-cpu-request: "20m"
+        dapr.io/sidecar-cpu-limit: "200m"
+        dapr.io/sidecar-memory-request: "64Mi"
+        dapr.io/sidecar-memory-limit: "256Mi"
+    spec:
+      containers:
+        - name: {{ include "mm-user-service.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+

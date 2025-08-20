@@ -1,0 +1,98 @@
+# Default values.yaml for mm-user-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+image:
+  repository: manki1337/mm-user-service
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: ClusterIP
+  port:
+  targetPortName:
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+
+resources:
+  requests:
+    cpu: 550m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 740Mi
+
+containerPort: 8080
+
+
+env:
+  # Servlet
+  - name: MOVIE_MATE_USER_SERVICE_CONTEXT_PATH
+    value:
+  - name: MOVIE_MATE_USER_SERVICE_PORT
+    value:
+
+  # PostgreSQL
+  - name: MOVIE_MATE_POSTGRE_URL
+    value:
+  - name: MOVIE_MATE_POSTGRE_USERNAME
+    value:
+  - name: MOVIE_MATE_POSTGRE_PASSWORD
+    value:
+  - name: MOVIE_MATE_POSTGRE_DB
+    value:
+  - name: MOVIE_MATE_POSTGRE_PORT
+    value:
+
+  # Redis
+  - name: MOVIE_MATE_REDIS_HOST
+    value:
+  - name: MOVIE_MATE_REDIS_PASSWORD
+    value:
+  - name: MOVIE_MATE_REDIS_PORT
+    value:
+  - name: MOVIE_MATE_USER_SERVICE_DATABASE_INDEX
+    value:
+  - name: MOVIE_MATE_USER_SERVICE_REDIS_TTL
+    value:
+
+
+  # JWT
+  - name: MOVIE_MATE_JWT_SECRET_KEY
+    value:
+  - name: MOVIE_MATE_JWT_ACCESS_EXPIRATION_TIME
+    value:
+  - name: MOVIE_MATE_JWT_REFRESH_EXPIRATION_TIME
+    value:
+
+  # Root User
+  - name: MOVIE_MATE_USER_SERVICE_ROOT_USERNAME
+    value:
+  - name: MOVIE_MATE_USER_SERVICE_ROOT_EMAIL
+    value:
+  - name: MOVIE_MATE_USER_SERVICE_ROOT_PASSWORD
+    value:
+
+  # Service Discovery
+  - name: MOVIE_MATE_DISCOVERY_SERVER_HOST
+    value:
+  - name: MOVIE_MATE_DISCOVERY_SERVER_PORT
+    value:
+
+  # Observability
+  - name: MOVIE_MATE_OTEL_COLLECTOR_TRACING_URL
+    value:
+  - name: MOVIE_MATE_OTEL_COLLECTOR_METRICS_URL
+    value:
+
+  # JVM tune
+  - name: JAVA_TOOL_OPTIONS
+    value: "-XX:MaxRAMPercentage=90.0"
+

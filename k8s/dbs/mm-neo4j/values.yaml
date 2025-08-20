@@ -1,0 +1,22 @@
+fullnameOverride: mm-neo4j
+neo4j:
+  name: mm-neo4j
+  password: neo4jpass
+  acceptLicenseAgreement: "yes"
+
+volumes:
+  data:
+    mode: defaultStorageClass
+    defaultStorageClass:
+      accessModes:
+        - ReadWriteOnce
+      requests:
+        storage: 2Gi
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 700m
+  limits:
+    memory: 1Gi
+    cpu: 1500m

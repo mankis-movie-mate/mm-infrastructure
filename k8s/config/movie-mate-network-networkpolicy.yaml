@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: movie-mate-network
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          io.kompose.network/movie-mate-network: "true"
+  - from:
+     - namespaceSelector:
+         matchLabels:
+           kubernetes.io/metadata.name: kube-system
+
+  podSelector:
+    matchLabels:
+      io.kompose.network/movie-mate-network: "true"

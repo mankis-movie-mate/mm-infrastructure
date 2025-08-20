@@ -1,0 +1,19 @@
+fullnameOverride: mm-mongo
+
+auth:
+  enabled: false
+
+architecture: standalone
+
+persistence:
+  enabled: true
+  size: 2Gi
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 400m
+  limits:
+    memory: 512Mi
+    cpu: 700m
+
