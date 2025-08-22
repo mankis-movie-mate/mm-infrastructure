@@ -18,6 +18,7 @@ spec:
         app.kubernetes.io/part-of: movie-mate
         app.kubernetes.io/component: backend
         io.kompose.network/movie-mate-network: "true"
+        movie.mate/force-redeploy: "20252208"
     spec:
       containers:
         - name: {{ include "mm-api-gateway.name" . }}
