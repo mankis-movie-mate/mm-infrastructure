@@ -1,5 +1,8 @@
-replicaCount: 1
-fullnameOverride: mm-kafka
+controller:
+  replicaCount: 1
+
+broker:
+  replicaCount: 0
 
 service:
   type: ClusterIP
@@ -12,7 +15,13 @@ persistence:
 resources:
   requests:
     memory: 512Mi
-    cpu: 250m
+    cpu: 100m
   limits:
     memory: 1Gi
-    cpu: 1
+    cpu: 1500m
+
+overrideConfiguration:
+  "listeners": "CLIENT://:9092,CONTROLLER://:9093"
+  "advertised.listeners": "CLIENT://mm-kafka-controller-headless:9092"
+  "listener.security.protocol.map": "CLIENT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+  "inter.broker.listener.name": "CLIENT"

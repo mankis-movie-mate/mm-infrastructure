@@ -86,6 +86,20 @@ env:
   - name: MOVIE_MATE_DISCOVERY_SERVER_PORT
     value:
 
+  # Dapr HTTP Port (sidecar)
+  - name: MOVIE_MATE_USER_SERVICE_DAPR_PORT
+    value:
+
+  # Dapr Pubsub Component Name
+  - name: MOVIE_MATE_DAPR_PUBSUB_COMPONENT
+    value:
+
+  # Dapr/Kafka Topics
+  - name: MOVIE_MATE_KAFKA_LOGIN_TOPIC
+    value:
+  - name: MOVIE_MATE_KAFKA_REGISTER_TOPIC
+    value:
+
   # Observability
   - name: MOVIE_MATE_OTEL_COLLECTOR_TRACING_URL
     value:
