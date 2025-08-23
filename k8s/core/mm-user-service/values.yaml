@@ -38,6 +38,8 @@ env:
     value:
   - name: MOVIE_MATE_USER_SERVICE_PORT
     value:
+  - name: MOVIE_MATE_USER_SERVICE_OPENAPI_SERVER_URL
+    value:
 
   # PostgreSQL
   - name: MOVIE_MATE_POSTGRE_URL
