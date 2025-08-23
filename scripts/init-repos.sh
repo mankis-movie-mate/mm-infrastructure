@@ -8,6 +8,7 @@ declare -A REPOS=(
   ["mm-movie-service"]="git@github.com:mankis-movie-mate/mm-movie-service.git"
   ["mm-discovery-server"]="git@github.com:mankis-movie-mate/mm-discovery-server.git"
   ["mm-api-gateway"]="git@github.com:mankis-movie-mate/mm-api-gateway.git"
+  ["mm-openapi-hub"]="git@github.com:mankis-movie-mate/mm-openapi-hub.git""
 )
 
 
