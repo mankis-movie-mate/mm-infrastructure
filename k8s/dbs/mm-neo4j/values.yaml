@@ -20,3 +20,9 @@ resources:
   limits:
     memory: 1Gi
     cpu: 1500m
+<<<<<<< HEAD
+=======
+
+env:
+  NEO4J_PLUGINS: '["graph-data-science"]'
+>>>>>>> master

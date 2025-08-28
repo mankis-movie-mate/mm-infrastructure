@@ -18,5 +18,22 @@ extraScrapeConfigs: |
     static_configs:
       - targets: ['mm-otel-collector:PORT']
 
+<<<<<<< HEAD
+=======
+   - job_name: 'dapr'
+    kubernetes_sd_configs:
+      - role: pod
+    metrics_path: /metrics
+    scheme: http
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_dapr_io_app_id]
+        action: keep
+        regex: .+
+      - source_labels: [__address__]
+        target_label: __address__
+        regex: '([^:]+):\d+'
+        replacement: '${1}:9090'
+
+>>>>>>> master
 alertmanager:
   enabled: false

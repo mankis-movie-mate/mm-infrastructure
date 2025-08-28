@@ -35,4 +35,8 @@ spec:
             - containerPort: 8080
           env:
             - name: KAFKA_BROKERS
+<<<<<<< HEAD
               value: "mm-kafka-controller-headless:9092"
+=======
+              value: "mm-kafka:9092"
+>>>>>>> master
