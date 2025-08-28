@@ -1,0 +1,39 @@
+fullnameOverride: mm-alloy
+namespaceOverride: movie-mate
+
+alloy:
+  configMap:
+    content: |-
+      // Discover all pods
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      // Tail logs from pods and enrich with k8s labels/metadata
+      loki.source.kubernetes "pods" {
+        targets    = discovery.kubernetes.pods.targets
+        // (optional) keep_stderr = true
+        // (optional) keep_stdout = true
+        forward_to = [loki.process.default.receiver]
+      }
+
+      // tweak labels/parse lines here
+      loki.process "default" {
+        // examples:
+        // stage.json {}
+        // stage.labels { values = { app = "movie-mate" } }
+        forward_to = [loki.write.default.receiver]
+      }
+
+      // Ship to Loki
+      loki.write "default" {
+        endpoint {
+          url = "http://mm-loki:3100/loki/api/v1/push"
+          headers = {
+            "X-Scope-OrgID"= "movie-mate",
+          }
+        }
+      }
+
+# Run one replica (Deployment)
+replicaCount: 1

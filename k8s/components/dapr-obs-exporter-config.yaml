@@ -1,0 +1,12 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: dapr-config
+  namespace: movie-mate
+spec:
+  tracing:
+    samplingRate: "1"
+    otel:
+      endpointAddress: "mm-otel-collector:4317"
+      protocol: "grpc"
+      isSecure: false

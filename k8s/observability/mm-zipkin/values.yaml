@@ -1,0 +1,16 @@
+fullnameOverride: mm-zipkin
+
+service:
+  type: ClusterIP
+  port: 9411
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 300m
+
+# By default, Zipkin uses in-memory storage (fine for dev)
+# For persistent storage, see Zipkin docs on Cassandra/MySQL/Elasticsearch backends

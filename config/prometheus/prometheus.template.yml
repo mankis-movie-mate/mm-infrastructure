@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['mm-api-gateway:${MOVIE_MATE_API_GATEWAY_METRICS_PORT}']
+  - job_name: 'mm-user-service-dapr'
+    static_configs:
+      - targets: ['mm-user-service:9090'] # standard dapr port for metrics inside the container
+  - job_name: 'otel-metrics'
+    static_configs:
+      - targets: ['mm-otel-collector:9464']

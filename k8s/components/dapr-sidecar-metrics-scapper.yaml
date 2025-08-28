@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dapr-sidecars
+  namespace: movie-mate
+spec:
+  selector: {}
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

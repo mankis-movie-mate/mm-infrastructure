@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mm-discovery-server.name" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mm-discovery-server.name" . }}
+    app.kubernetes.io/part-of: movie-mate
+    app.kubernetes.io/component: backend
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app.kubernetes.io/name: {{ include "mm-discovery-server.name" . }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPortName }}

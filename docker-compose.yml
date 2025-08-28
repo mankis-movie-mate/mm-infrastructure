@@ -1,0 +1,311 @@
+version: "3"
+
+services:
+  ##############################################################################
+  # Placement services
+  ##############################################################################
+  mm-dapr-placement:
+    image: "daprio/dapr"
+    command: ["./placement"]
+    container_name: mm-dapr-placement
+    ports:
+      - "${MOVIE_MATE_DAPR_PLACEMENT_PORT}:50005"
+    networks:
+      - movie-mate-network
+
+  ##############################################################################
+  # Observability
+  ##############################################################################
+  # Metrics: Prometheus
+  mm-prometheus:
+    build:
+      context: ./config/prometheus
+    container_name: mm-prometheus
+    env_file:
+      - .env
+    ports:
+      - "${MOVIE_MATE_PROMETHEUS_PORT}:9090"
+    networks:
+      - movie-mate-network
+
+  # Visualization: Grafana
+  mm-grafana:
+    image: grafana/grafana
+    container_name: mm-grafana
+    ports:
+      - "${MOVIE_MATE_GRAFANA_PORT}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${MOVIE_MATE_GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${MOVIE_MATE_GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    depends_on:
+      - mm-prometheus
+      - mm-loki
+      - mm-zipkin
+    networks:
+      - movie-mate-network
+
+  # Tracing: Zipkin
+  mm-zipkin:
+    image: openzipkin/zipkin
+    container_name: mm-zipkin
+    ports:
+      - "${MOVIE_MATE_ZIPKIN_PORT:-9411}:9411"
+    networks:
+      - movie-mate-network
+
+  # Logging: Loki
+  mm-loki:
+    image: grafana/loki:latest
+    container_name: mm-loki
+    ports:
+      - "${MOVIE_MATE_LOKI_PORT:-3100}:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./config/loki/loki-config.yaml:/etc/loki/loki-config.yaml
+    networks:
+      - movie-mate-network
+
+  mm-promtail:
+    image: grafana/promtail:latest
+    container_name: mm-promtail
+    volumes:
+      - ./config/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    environment:
+      - LOKI_PUSH_URL=http://mm-loki:${MOVIE_MATE_LOKI_PORT:-3100}/loki/api/v1/push
+    command: -config.file=/etc/promtail/promtail-config.yaml -config.expand-env=true
+    networks:
+      - movie-mate-network
+
+  # Metrics: OTEL
+  mm-otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: mm-otel-collector
+    env_file:
+      - .env
+    volumes:
+      - ./config/otel/otel-collector-config.yaml:/etc/otel/config.yaml
+    command: [ "--config=/etc/otel/config.yaml" ]
+    ports:
+      - "${MOVIE_MATE_OTEL_PORT:-4318}:4318"
+    networks:
+      - movie-mate-network
+
+  ##############################################################################
+  # Databases
+  ##############################################################################
+
+  # PostgreSQL
+  mm-postgres:
+    image: postgres:latest
+    container_name: mm-postgres
+    environment:
+      POSTGRES_USER: "${MOVIE_MATE_POSTGRE_USERNAME}"
+      POSTGRES_PASSWORD: "${MOVIE_MATE_POSTGRE_PASSWORD}"
+      POSTGRES_DB: "${MOVIE_MATE_POSTGRE_DB}"
+    ports:
+      - "${MOVIE_MATE_POSTGRE_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - movie-mate-network
+
+  # MongoDB
+  mm-mongo:
+    image: mongo:latest
+    container_name: mm-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MOVIE_MATE_MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MOVIE_MATE_MONGO_INITDB_ROOT_PASSWORD}"
+    ports:
+      - "${MOVIE_MATE_MONGO_PORT}:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - movie-mate-network
+
+  # Redis
+  mm-redis:
+    image: redis:latest
+    container_name: mm-redis
+    command: [ "redis-server", "--requirepass", "${MOVIE_MATE_REDIS_PASSWORD}" ]
+    environment:
+      REDIS_PASSWORD: "${MOVIE_MATE_REDIS_PASSWORD}"
+    ports:
+      - "${MOVIE_MATE_REDIS_PORT}:6379"
+    networks:
+      - movie-mate-network
+
+  # Neo4j
+  mm-neo4j:
+    image: neo4j:latest
+    container_name: mm-neo4j
+    environment:
+      NEO4J_AUTH: "${MOVIE_MATE_NEO4J_AUTH}"
+    ports:
+      - "${MOVIE_MATE_NEO4J_HTTP_PORT}:7474"
+      - "${MOVIE_MATE_NEO4J_BOLT_PORT}:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - movie-mate-network
+
+
+  ##############################################################################
+  # Message Queues
+  ##############################################################################
+  # Zookeeper
+  mm-zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: mm-zookeeper
+    environment:
+      ZOO_PORT_NUMBER: "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+    ports:
+      - "${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+    networks:
+      - movie-mate-network
+
+  # Kafka
+  mm-kafka:
+    image: bitnami/kafka:latest
+    container_name: mm-kafka
+    depends_on:
+      - mm-zookeeper
+    environment:
+      KAFKA_BROKER_ID: "${MOVIE_MATE_KAFKA_BROKER_ID}"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:${MOVIE_MATE_ZOOKEEPER_CLIENT_PORT}"
+      KAFKA_LISTENERS: "INTERNAL://:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:${MOVIE_MATE_KAFKA_INTERNAL_PORT},EXTERNAL://localhost:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+
+    ports:
+      - "${MOVIE_MATE_KAFKA_EXTERNAL_PORT}:${MOVIE_MATE_KAFKA_EXTERNAL_PORT}"
+    networks:
+      - movie-mate-network
+
+  ##############################################################################
+  # Microservices
+  ##############################################################################
+
+  mm-discovery-server:
+    image: ${MOVIE_MATE_DOCKER_REGISTRY}/mm-discovery-server:${MOVIE_MATE_VERSION}
+    container_name: mm-discovery-server
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-discovery-server/.env
+    ports:
+      - "${MOVIE_MATE_DISCOVERY_SERVER_UI_PORT}:8500"
+      - "${MOVIE_MATE_DISCOVERY_SERVER_DNS_PORT}:8600/udp"
+    networks:
+      - movie-mate-network
+
+  mm-api-gateway:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-api-gateway:${MOVIE_MATE_VERSION}"
+    container_name: mm-api-gateway
+    depends_on:
+      - mm-discovery-server
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-api-gateway/.env
+    environment:
+      TRAEFIK_PROVIDERS_CONSULCATALOG_ENDPOINT_ADDRESS: "${MOVIE_MATE_DISCOVERY_SERVER_HOST}:${MOVIE_MATE_DISCOVERY_SERVER_PORT}"
+    ports:
+      - "${MOVIE_MATE_API_GATEWAY_PORT}:8080"
+    labels:
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}"
+    networks:
+      - movie-mate-network
+
+      #  mm-movie-service:
+      #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-movie-service:${MOVIE_MATE_VERSION}"
+      #    container_name: mm-movie-service
+      #    depends_on:
+      #      - mm-api-gateway
+      #    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-movie-service/.env
+      #    ports:
+      #      - "${MOVIE_MATE_MOVIE_SERVICE_PORT}:${MOVIE_MATE_MOVIE_SERVICE_PORT}"
+      #    networks:
+      #      - movie-mate-network
+
+      #  mm-activity-service:
+      #    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-activity-service:${MOVIE_MATE_VERSION}"
+      #    container_name: mm-activity-service
+      #    depends_on:
+      #      - mm-api-gateway
+      #    env_file:
+      #      - .env.db
+      #      - .env
+      #      - ../mm-activity-service/.env
+  #    ports:
+  #      - "${MOVIE_MATE_ACTIVITY_SERVICE_PORT}:${MOVIE_MATE_ACTIVITY_SERVICE_PORT}"
+  #    networks:
+  #      - movie-mate-network
+
+  mm-recommendation-service:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-recommendation-service:${MOVIE_MATE_VERSION}"
+    container_name: mm-recommendation-service
+    depends_on:
+      - mm-api-gateway
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-recommendation-service/.env
+    ports:
+      - "${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}:${MOVIE_MATE_RECOMMENDATION_SERVICE_PORT}"
+    networks:
+      - movie-mate-network
+
+  mm-user-service:
+    image: "${MOVIE_MATE_DOCKER_REGISTRY}/mm-user-service:${MOVIE_MATE_VERSION}"
+    container_name: mm-user-service
+    depends_on:
+      - mm-api-gateway
+      - mm-postgres
+      - mm-redis
+      - mm-otel-collector
+    env_file:
+      - .env.db
+      - .env
+      - ../mm-user-service/.env
+    ports:
+      - "${MOVIE_MATE_USER_SERVICE_PORT}:${MOVIE_MATE_USER_SERVICE_PORT}"
+      - "${MOVIE_MATE_USER_SERVICE_DAPR_PORT}:3500"
+    networks:
+      - movie-mate-network
+
+  mm-dapr-user-service:
+    image: "daprio/daprd"
+    container_name: mm-dapr-user-service
+    depends_on:
+      - mm-user-service
+    command: [
+      "./daprd",
+      "-app-id", "mm-user-service",
+      "-app-port", "${MOVIE_MATE_USER_SERVICE_PORT}",
+      "-placement-host-address", "mm-dapr-placement:${MOVIE_MATE_DAPR_PLACEMENT_PORT}",
+    ]
+    network_mode: "service:mm-user-service"
+
+##############################################################################
+# Networks & Volumes
+##############################################################################
+
+networks:
+  movie-mate-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  neo4j_data:
+  neo4j_logs:

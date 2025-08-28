@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "mm-kafka.movie-mate.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "movie-mate-group"
+    - name: authRequired
+      value: "false"

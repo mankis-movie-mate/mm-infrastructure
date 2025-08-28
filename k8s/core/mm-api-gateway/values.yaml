@@ -1,0 +1,57 @@
+# Default values.yaml for mm-api-gateway.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+image:
+  repository: manki1337/mm-api-gateway
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: ClusterIP
+  name: mm-api-gateway
+  port:
+  targetPortName:
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+
+containerPort:
+
+ingress:
+  enabled: true
+  host: themanki.net
+
+resources:
+  requests:
+    cpu: 350m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 384Mi
+
+env:
+  # Servlet
+  - name: MOVIE_MATE_BASE_PATH
+    value:
+  - name: MOVIE_MATE_API_GATEWAY_INTERNAL_LISTENING_PORT
+    value:
+  - name: MOVIE_MATE_API_GATEWAY_METRICS_PORT
+    value:
+
+  # Service Discovery
+  - name: MOVIE_MATE_DISCOVERY_SERVER_HOST
+    value:
+  - name: MOVIE_MATE_DISCOVERY_SERVER_PORT
+    value:
+
+  # OTEL
+  - name: MOVIE_MATE_OTEL_COLLECTOR_TRACING_URL
+    value:
+
+
