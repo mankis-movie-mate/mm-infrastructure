@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mm-keycloak
+  namespace: movie-mate
+  annotations:
+    traefik.ingress.kubernetes.io/router.priority: "50"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: themanki.net
+      http:
+        paths:
+          - path: /mmate/keycloak
+            pathType: Prefix
+            backend:
+              service:
+                name: mm-keycloak
+                port:
+                  number: 80

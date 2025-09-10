@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: manki1337/mm-activity-service
+  pullPolicy: Always
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPortName: http
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 50
+
+resources:
+  requests:
+    cpu: 350m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 740i
+
+containerPort: 5000
+
+env:
+  MOVIE_MATE_ACTIVITY_SERVICE_BASE_URL: "/"
+  MOVIE_MATE_ACTIVITY_SERVICE_PORT: "5000"
+  MOVIE_MATE_ACTIVITY_SERVICE_LISTEN_HOST: "0.0.0.0"
+  MOVIE_MATE_ACTIVITY_SERVICE_ENV: "dev"
+  MOVIE_MATE_ACTIVITY_SERVICE_DEBUG: "true"
+
+  # Data Storage
+  MOVIE_MATE_ACTIVITY_SERVICE_DB_NAME: ""
+  MOVIE_MATE_ACTIVITY_SERVICE_DB_HOST: "0.0.0.0"
+  MOVIE_MATE_ACTIVITY_SERVICE_DB_PORT: "27017"
+  MOVIE_MATE_ACTIVITY_SERVICE_DB_USER: ""
+  MOVIE_MATE_ACTIVITY_SERVICE_DB_PASSWORD: ""
+
+  # Service Discovery
+  MOVIE_MATE_DISCOVERY_SERVER_HOST: ""
+  MOVIE_MATE_DISCOVERY_SERVER_PORT: ""
+  MOVIE_MATE_ACTIVITY_SERVICE_LB_TAGS: ""
+
+  # Logging
+  MOVIE_MATE_ACTIVITY_SERVICE_LOG_LEVEL: "INFO"
