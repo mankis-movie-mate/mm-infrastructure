@@ -1,0 +1,55 @@
+config:
+  clientID: "mm-api-gateway"
+  clientSecret: "zCijAgIbpBua3HcWy3u5swAqYqBqLLyc"
+  cookieSecret: "dKGsCYhXtrRzzeJhM5NeMxywJewqKTML"
+
+  annotations: {}
+
+  configFile: |-
+    provider = "keycloak-oidc"
+    provider_display_name = "Keycloak"
+    redirect_url = "https://themanki.net/mmate/oauth2/callback"
+    oidc_issuer_url = "https://themanki.net/mmate/keycloak/realms/movie-mate"
+    code_challenge_method = "S256"
+
+    reverse_proxy = true
+    pass_authorization_header = true
+    set_xauthrequest = true
+    skip_provider_button = true
+    http_address = "0.0.0.0:4180"
+    upstreams = ["static://202"]
+
+    cookie_path = "/"
+    cookie_secure = true
+    cookie_name = "__Host-oauth2-proxy"
+    cookie_samesite = "lax"
+
+    email_domains = ["*"]
+    scope = "openid"
+
+
+
+extraArgs:
+  - --proxy-prefix=/mmate/oauth2
+  - --cookie-csrf-per-request=true
+  - --cookie-csrf-expire=5m
+  - --pass-access-token=true
+  - --whitelist-domain=themanki.net
+  - --whitelist-domain=.themanki.net
+
+sessionStorage:
+  type: cookie
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "web"
+    traefik.ingress.kubernetes.io/router.priority: "150"
+  path: /mmate/oauth2
+  pathType: Prefix
+  hosts:
+    - themanki.net
+  tls:
+    - hosts:
+        - themanki.net

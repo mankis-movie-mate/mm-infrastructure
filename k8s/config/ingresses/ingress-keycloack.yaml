@@ -5,6 +5,8 @@ metadata:
   namespace: movie-mate
   annotations:
     traefik.ingress.kubernetes.io/router.priority: "50"
+    traefik.ingress.kubernetes.io/forwarded-headers-strategy: "append"
+
 spec:
   ingressClassName: traefik
   rules:
