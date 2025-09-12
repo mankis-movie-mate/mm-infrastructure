@@ -1,0 +1,54 @@
+# Default values.yaml for mm-movie-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: manki1337/mm-movie-service
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPortName: http
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+
+resources:
+  requests:
+    cpu: 300m
+    memory: 256Mi
+  limits:
+    cpu: 600m
+    memory: 512Mi
+
+containerPort: 3000
+
+env:
+  #      Movie Service
+  - name: MOVIE_MATE_MOVIE_SERVICE_HOST
+    value: "0.0.0.0"
+  - name: MOVIE_MATE_MOVIE_SERVICE_PORT
+    value: "3000"
+  - name: MOVIE_MATE_MOVIE_SERVICE_BASE_URL
+    value: "/api"
+
+  #      Data Storage
+  - name: MOVIE_MATE_MOVIE_SERVICE_MONGO_URI
+    value: ""
+
+  #   Service Discovery
+  - name: MOVIE_MATE_DISCOVERY_SERVER_HOST
+    value: ""
+  - name: MOVIE_MATE_DISCOVERY_SERVER_PORT
+    value: ""
+
+  #         Logging
+  - name: MOVIE_MATE_MOVIE_SERVICE_LOGGER_LEVEL
+    value: ""

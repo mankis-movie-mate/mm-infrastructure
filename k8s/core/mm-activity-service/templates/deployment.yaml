@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mm-activity-service.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mm-activity-service.name" . }}
+    app.kubernetes.io/part-of: movie-mate
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mm-activity-service.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "mm-activity-service.name" . }}
+        app.kubernetes.io/part-of: movie-mate
+        app.kubernetes.io/component: backend
+        io.kompose.network/movie-mate-network: "true"
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: {{ include "mm-activity-service.name" . }}
+        dapr.io/app-port: "{{ .Values.containerPort }}"
+        dapr.io/config: dapr-config
+        dapr.io/sidecar-listen-addresses: "0.0.0.0"
+        dapr.io/sidecar-cpu-request: "100m"
+        dapr.io/sidecar-cpu-limit: "300m"
+        dapr.io/sidecar-memory-request: "128Mi"
+        dapr.io/sidecar-memory-limit: "256Mi"
+    spec:
+      containers:
+        - name: {{ include "mm-activity-service.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

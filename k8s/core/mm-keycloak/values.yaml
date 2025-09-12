@@ -1,0 +1,71 @@
+auth:
+  adminUser: admin
+  adminPassword: supersecure-adminpw     # CHANGE ME in production!
+
+# Database (external, recommended!)
+externalDatabase:
+  host: keycloak-db-postgresql
+  user: postgres
+  password: supersecure-postgrespw
+  database: postgres
+
+proxy: edge
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hostname: keycloak.themoviemate.local
+  pathType: Prefix
+  path: /
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # Optionally, enforce TLS or middlewares here
+    # traefik.ingress.kubernetes.io/router.tls: "true"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1024Mi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+# Extra environment variables (optional)
+extraEnvVars:
+  - name: KEYCLOAK_LOGLEVEL
+    value: INFO
+  - name: KC_HTTP_RELATIVE_PATH
+    value:
+  - name: KC_PROXY
+    value: "edge"
+
+
+customLivenessProbe:
+  httpGet:
+    path:   # <--- matches your base path!
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 1
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+customReadinessProbe:
+  httpGet:
+    path:    # <--- matches your base path!
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+persistence:
+  enabled: true
+  size: 5Gi

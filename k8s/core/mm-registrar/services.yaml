@@ -1,0 +1,49 @@
+consul_url: "http://mm-discovery-server:8500"
+id_prefix: "mm-"
+services:
+  - name: grafana
+    id: mm-grafana
+    address: mm-grafana
+    port: 3444
+    prefix: /mmate/internal/grafana
+    entrypoint: internal
+    middleware: oauth-redirect@file
+    check_http: /api/health
+    check_interval: 10s
+    check_timeout: 2s
+  - name: jaeger
+    id: mm-jaeger
+    address: mm-jaeger-query
+    port: 16686
+    prefix: /mmate/internal/jaeger
+    entrypoint: internal
+    middleware: oauth-redirect@file
+    check_interval: 10s
+    check_timeout: 2s
+  - name: consul
+    id: mm-discovery-server
+    address: mm-discovery-server
+    port: 8500
+    prefix: /mmate/internal/consul
+    entrypoint: internal
+    middleware: oauth-redirect@file
+    check_interval: 10s
+    check_timeout: 2s
+  - name: mm-redpanda
+    id: mm-redpanda
+    address: mm-redpanda-console
+    port: 8080
+    prefix: /mmate/internal/redpanda
+    entrypoint: internal
+    middleware: oauth-redirect@file
+    check_interval: 10s
+    check_timeout: 2s
+  - name: mm-prometheus
+    id: prometheus-server
+    address: mm-prometheus-server
+    port: 80
+    prefix: /mmate/internal/prometheus
+    entrypoint: internal
+    middleware: oauth-redirect@file
+    check_interval: 10s
+    check_timeout: 2s

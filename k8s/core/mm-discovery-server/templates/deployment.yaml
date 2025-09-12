@@ -28,7 +28,24 @@ spec:
 
           env:
             {{- toYaml .Values.env | nindent 12 }}
-
+        - name: mm-nginx-proxy
+          image: nginx:1.27-alpine
+          ports:
+            - name: proxy
+              containerPort: 8080
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+          readinessProbe:
+            httpGet:
+              path: /mmate/internal/consul/ui/
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: mm-discovery-server-nginx
 
