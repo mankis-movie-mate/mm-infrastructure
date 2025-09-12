@@ -21,6 +21,7 @@ loki:
   ruler:
     enable_api: true
 
+
 minio:
   enabled: true
 

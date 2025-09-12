@@ -1,15 +1,15 @@
 config:
-  clientID: "mm-api-gateway"
-  clientSecret: "zCijAgIbpBua3HcWy3u5swAqYqBqLLyc"
-  cookieSecret: "dKGsCYhXtrRzzeJhM5NeMxywJewqKTML"
+  clientID: "REPLACE_ME_CLIENT_ID"
+  clientSecret: "REPLACE_ME_CLIENT_SECRET"
+  cookieSecret: "REPLACE_ME_COOKIE_SECRET"
 
   annotations: {}
 
   configFile: |-
     provider = "keycloak-oidc"
     provider_display_name = "Keycloak"
-    redirect_url = "https://themanki.net/mmate/oauth2/callback"
-    oidc_issuer_url = "https://themanki.net/mmate/keycloak/realms/movie-mate"
+    redirect_url = "https://your-domain.com/your-app/oauth2/callback"
+    oidc_issuer_url = "https://your-domain.com/your-app/keycloak/realms/your-realm"
     code_challenge_method = "S256"
 
     reverse_proxy = true
@@ -27,15 +27,16 @@ config:
     email_domains = ["*"]
     scope = "openid"
 
-
-
 extraArgs:
-  - --proxy-prefix=/mmate/oauth2
+  - --proxy-prefix=/your-app/oauth2
   - --cookie-csrf-per-request=true
   - --cookie-csrf-expire=5m
   - --pass-access-token=true
-  - --whitelist-domain=themanki.net
-  - --whitelist-domain=.themanki.net
+  - --whitelist-domain=your-domain.com
+  - --whitelist-domain=.your-domain.com
+  - --standard-logging=true
+  - --request-logging=true
+  - --auth-logging=true
 
 sessionStorage:
   type: cookie
@@ -46,10 +47,10 @@ ingress:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "web"
     traefik.ingress.kubernetes.io/router.priority: "150"
-  path: /mmate/oauth2
+  path: /your-app/oauth2
   pathType: Prefix
   hosts:
-    - themanki.net
+    - your-domain.com
   tls:
     - hosts:
-        - themanki.net
+        - your-domain.com
